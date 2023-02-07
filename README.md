@@ -1,6 +1,8 @@
 # currency-exchange-rates
 
-## Resolução intermediária
+## Resolução avançada
+
+![sample](./gif/sample.gif)
 
 O que foi feito para **guardar** as cotações:
 
@@ -11,9 +13,9 @@ Como ficou o processo de automação que guarda as cotações:
   * Com rotina automatizada de consulta ao endpoint de cotações que capturou todos os dados (excluindo valores de sabádo e domingo) e fez a persistência (gravação) no banco de dados.
     * ```$ python manage.py populated_db```
 
-## Considerações
+Moedas escolhidas:
 
-  * As consultas feita na API de cotações foram tratada e os valores de cotações obtidas além de USD, BRL, EUR e JPY foram excluídos da operação de persistência.
+  * As consultas feitas na API de cotações foram tratadas e os valores de cotações obtidas além de USD, BRL, EUR e JPY foram excluídos da operação de persistência.
 
 ## Bônus
 
@@ -24,7 +26,7 @@ Como ficou o processo de automação que guarda as cotações:
 
 Setup para MongoDB com propósito de desevenvolvimento.
 
-    $ docker-compose -f ./dev-ops/docker-compose.yaml up
+	$ docker-compose -f ./dev-ops/docker-compose.yaml up
 
 ## Python Setup
 
@@ -34,9 +36,9 @@ Setup para exibir o sistema com gráfico.
 
 	$ source .venv/bin/activate
 
-    $ pip install --upgrade setuptools
-    
-    $ pip install --upgrade pip
+	$ pip install --upgrade setuptools
+
+	$ pip install --upgrade pip
 
 	$ pip install -r requirements.txt
 

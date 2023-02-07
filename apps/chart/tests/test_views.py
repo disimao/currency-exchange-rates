@@ -64,3 +64,10 @@ class RatesEndpointTestCase(APITestCase):
             url, QUERY_STRING="start_date=2020-04-01&end_date=2020-04-06"
         )
         self.assertEquals(rates, response.json())
+    
+    def test_get_rates_endpoint_delta_more_than_five_business_days_return_empty(self):
+        url = reverse("api_get_rates_by_date")
+        response = self.client.get(
+            url, QUERY_STRING="start_date=2023-01-05&end_date=2023-01-12"
+        )
+        self.assertEquals({}, response.json())

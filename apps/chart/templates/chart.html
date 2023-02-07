@@ -3,56 +3,100 @@
 <head>
   <meta charset="utf-8">
   <title>Cotações com Highcharts</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
 </head>
 <body>
-  <a href="{% url 'chart' %}">Voltar</a>
-  <div id="container" data-url="{% url 'api_get_rates_by_date' %}?start_date=2023-01-22&end_date=2023-01-28"></div>
+  Selecione:
+  <form autocomplete="off">
+    <input class="form-control" type="text" id="start_date" placeholder="Data de início">
+    <input class="form-control" type="text" id="end_date" placeholder="Data final">
+    <select required class="form-control" name="currency" id="currency-select">
+      <option value="">A moeda</option>
+      <option value="BRL">BRL</option>
+      <option value="EUR">EUR</option>
+      <option value="JPY">JPY</option>
+    </select>
+    <input class="form-control" type="submit" value="Submit">
+  </form>
+  <div id="container" data-url="{% url 'api_get_rates_by_date' %}"></div>
   <script src="https://code.highcharts.com/highcharts.src.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <script>
-    $.ajax({
-      url: $("#container").attr("data-url"),
-      dataType: 'json',
-      success: function (data) {
-        if (data.length > 0){
-          var series = []
-          $.each(data[0].rates, function(currency, r) {
-            series.push({name: currency, data: []})
-          });
+  $(document).ready(function () {
+    $("#start_date").datepicker({
+       format: 'yyyy-mm-dd',
+       autoclose: true,
+       daysOfWeekHighlighted: "0,6",
+       daysOfWeekDisabled: [0, 6]
+    })
+    $("#end_date").datepicker({
+       format: 'yyyy-mm-dd',
+       autoclose: true,
+       daysOfWeekHighlighted: "0,6",
+       daysOfWeekDisabled: [0, 6]
+    })
 
-          var dates = []
-          var rates = []
-          $.each(data, function(key, r) {
-            dates.push(r.date)
-            rates.push(r.rates)
-          });
+    $("form").submit(function (event) {
+      var form_data = {
+        start_date: $("#start_date").val(),
+        end_date: $("#end_date").val(),
+      };
+      var currency_selected = $("#currency-select").val()
 
-          $.each(rates, function(key, rate){
-            $.each(rate, function(currency, r) {
-              $.each(series, function(i, serie){
-                  if (serie.name == currency){
-                    serie.data.push(r)
-                  }
+      $.ajax({
+        type: "GET",
+        url: $("#container").attr("data-url"),
+        data: form_data,
+        dataType: 'json',
+        success: function (data) {
+          if (data.length > 0){
+            var series = []
+            $.each(data[0].rates, function(currency, r) {
+              if (currency == currency_selected){
+                series.push({name: currency, data: []})
+              }
+            });
+
+            var dates = []
+            var rates = []
+            $.each(data, function(key, r) {
+              dates.push(r.date)
+              rates.push(r.rates)
+            });
+
+            $.each(rates, function(key, rate){
+              $.each(rate, function(currency, r) {
+                $.each(series, function(i, serie){
+                    if (serie.name == currency && currency == currency_selected){
+                      serie.data.push(r)
+                    }
+                });
               });
             });
-          });
 
-          data = {
-              chart: {
-                  type: 'line'
-              },
-              title: {
-                  text: 'Cotações'
-              },
-              xAxis: {
-                  categories: dates
-              },
-              series: series
-          }
-          Highcharts.chart("container", data);
-      }
-      }
+            data = {
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: 'Cotações'
+                },
+                xAxis: {
+                    categories: dates
+                },
+                series: series
+            }
+            Highcharts.chart("container", data);
+        }else{
+          alert("Perído acima de 5 dias úteis")
+        }
+        }
+      });
+      event.preventDefault();
     });
+  });
   </script>
 </body>
 </html>
