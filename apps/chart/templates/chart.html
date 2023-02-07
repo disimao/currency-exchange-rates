@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Cotações com Highcharts</title>
+</head>
+<body>
+  <a href="{% url 'chart' %}">Voltar</a>
+  <div id="container" data-url="{% url 'api_get_rates_by_date' %}?start_date=2023-01-22&end_date=2023-01-28"></div>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $.ajax({
+      url: $("#container").attr("data-url"),
+      dataType: 'json',
+      success: function (data) {
+        if (data.length > 0){
+          var series = []
+          $.each(data[0].rates, function(currency, r) {
+            series.push({name: currency, data: []})
+          });
+
+          var dates = []
+          var rates = []
+          $.each(data, function(key, r) {
+            dates.push(r.date)
+            rates.push(r.rates)
+          });
+
+          $.each(rates, function(key, rate){
+            $.each(rate, function(currency, r) {
+              $.each(series, function(i, serie){
+                  if (serie.name == currency){
+                    serie.data.push(r)
+                  }
+              });
+            });
+          });
+
+          data = {
+              chart: {
+                  type: 'line'
+              },
+              title: {
+                  text: 'Cotações'
+              },
+              xAxis: {
+                  categories: dates
+              },
+              series: series
+          }
+          Highcharts.chart("container", data);
+      }
+      }
+    });
+  </script>
+</body>
+</html>
